@@ -1,21 +1,39 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import AppLoading from 'expo-app-loading';
+import { useFonts } from 'expo-font';
+
+import AppTabContainer from './navigation/appTab';
+import { AuthProvider, useAuth } from './context/authContext'
+import LoginStackContainer from './navigation/loginStack';
+import { colors } from './styles/constants';
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+
+  let [fontsLoaded] = useFonts({
+    'poppins-regular': require('./assets/fonts/Poppins-Regular.ttf'),
+    'poppins-bold': require('./assets/fonts/Poppins-Bold.ttf'),
+    'poppins-semibold': require('./assets/fonts/Poppins-SemiBold.ttf'),
+  });
+
+  if (fontsLoaded) {
+    return (
+      <AuthProvider>
+        <CurrentScreen />
+      </AuthProvider>
+    )
+  } else {
+    return <AppLoading />
+  }
+
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+function CurrentScreen() {
+  const {isLoggedIn} = useAuth()
+  return (
+    <>
+      <StatusBar animated={true} backgroundColor={colors.statusBar} barStyle="dark-content"/>
+      {isLoggedIn ? <AppTabContainer /> : <LoginStackContainer />} 
+    </>
+  )
+}
